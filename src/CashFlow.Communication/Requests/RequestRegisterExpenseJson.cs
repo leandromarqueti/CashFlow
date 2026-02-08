@@ -1,7 +1,6 @@
 ﻿using CashFlow.Communication.Enums;
 
-namespace CashFlow.Application.Requests;
-
+namespace CashFlow.Communication.Requests;
 public class RequestRegisterExpenseJson
 {
     public string Title { get; set; } = string.Empty;
@@ -9,7 +8,5 @@ public class RequestRegisterExpenseJson
     public DateTime Date { get; set; }
     public decimal Amount { get; set; }
     public PaymentType PaymentType { get; set; }
-
-
-
 }
+
