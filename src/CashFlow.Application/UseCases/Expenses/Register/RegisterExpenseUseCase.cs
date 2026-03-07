@@ -14,19 +14,8 @@ public class RegisterExpenseUseCase
 
     private void Validate(RequestRegisterExpenseJson request)
     {
-        var TitleIsEmpty = string.IsNullOrEmpty(request.Title);
-
-        if (TitleIsEmpty)
-            throw new ArgumentException("Title is required.");
-        if (request.Amount <= 0)
-            throw new ArgumentException("Amount must be greater than zero.");
-        //var resultData = DateTime.Compare(request.Date, DateTime.UtcNow);
-        //if (resultData > 0)
-        //    throw new ArgumentException("Date cannot be in the future.");
-        //ou
-        if (request.Date > DateTime.Now)
-            throw new ArgumentException("Date cannot be in the future.");
-        if (!Enum.IsDefined(typeof(PaymentType), request.PaymentType))
-            throw new ArgumentException("Invalid payment type.");
+        var validator = new RegisterExpenseValidator();
+        
+        var result = validator.Validate(request);
     }
 }
