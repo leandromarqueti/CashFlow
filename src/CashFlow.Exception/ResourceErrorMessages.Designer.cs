@@ -79,7 +79,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid payment type..
+        ///   Looks up a localized string similar to Payment type is not valid..
         /// </summary>
         public static string PAYMENT_TYPE_INVALID {
             get {
@@ -97,7 +97,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown error.
+        ///   Looks up a localized string similar to Unknown error..
         /// </summary>
         public static string UNKNOWN_ERROR {
             get {
