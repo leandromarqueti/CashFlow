@@ -9,15 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Tests.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CashFlow.Application\CashFlow.Application.csproj" />
+    <ProjectReference Include="..\..\src\CashFlow.Communication\CashFlow.Communication.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Expenses\Register\RegisterExpenseValidatorTests.cs" />
   </ItemGroup>
 
 </Project>
