@@ -4,7 +4,7 @@ using CashFlow.Communication.Requests;
 namespace CommonTestUtilities.Requests;
 public class RequestRegisterExpenseJsonBuilder
 {
-    public static RequestRegisterExpenseJson Build()
+    public static RequestExpenseJson Build()
     {
         //return new RequestRegisterExpenseJson
         //{
@@ -14,7 +14,7 @@ public class RequestRegisterExpenseJsonBuilder
         //    Date = DateTime.Now.AddDays(-1),
         //    PaymentType = CashFlow.Communication.Enums.PaymentType.CreditCard
         //};
-        return new Bogus.Faker<RequestRegisterExpenseJson>()
+        return new Bogus.Faker<RequestExpenseJson>()
             .RuleFor(x => x.Amount, f => f.Random.Decimal(min: 1, max: 1000))
             .RuleFor(x => x.Description, f => f.Lorem.Sentence())
             .RuleFor(x => x.Title, f => f.Commerce.Product())
