@@ -3,6 +3,7 @@ using CashFlow.Application.UseCases.Expenses.Reports.Pdf.Fonts;
 using CashFlow.Domain.Extensions;
 using CashFlow.Domain.Reports;
 using CashFlow.Domain.Repositories.Expenses;
+using CashFlow.Domain.Services.LoggedUser;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
@@ -14,25 +15,29 @@ public class GenerateExpensesReportPdfUseCase : IGenerateExpensesReportPdfUseCas
 {
     private const string CURRENCY_SYMBOL = "€";
     private const int HEIGHT_ROW_EXPENSE_TABLE = 25;
-    private readonly IExpensesReadOnlyRepository _repository;
 
-    public GenerateExpensesReportPdfUseCase(IExpensesReadOnlyRepository repository)
+    private readonly IExpensesReadOnlyRepository _repository;
+    private readonly ILoggedUser _loggedUser;
+
+    public GenerateExpensesReportPdfUseCase(IExpensesReadOnlyRepository repository, ILoggedUser loggedUser)
     {
         _repository = repository;
+        _loggedUser = loggedUser;
 
         GlobalFontSettings.FontResolver = new ExpensesReportFontResolver();
     }
 
     public async Task<byte[]> Execute(DateOnly month)
     {
-        var expenses = await _repository.FilterByMonth(month);
+        var loggedUser = await _loggedUser.Get();
+
+        var expenses = await _repository.FilterByMonth(loggedUser, month);
         if (expenses.Count == 0)
         {
             return [];
         }
 
-        var document = CreateDocument("Leandro", month);
-
+        var document = CreateDocument(loggedUser.Name, month);
         var page = CreatePage(document);
 
         CreateHeaderWithProfilePhotoAndName(loggedUser.Name, page);
@@ -124,7 +129,7 @@ public class GenerateExpensesReportPdfUseCase : IGenerateExpensesReportPdfUseCas
 
         var assembly = Assembly.GetExecutingAssembly();
         var directoryName = Path.GetDirectoryName(assembly.Location);
-        var pathFile = Path.Combine(directoryName!, "Logo", "CashFlow_Logo.png");
+        var pathFile = Path.Combine(directoryName!, "Logo", "ProfilePhoto.png");
 
         row.Cells[0].AddImage(pathFile);
 
@@ -213,5 +218,4 @@ public class GenerateExpensesReportPdfUseCase : IGenerateExpensesReportPdfUseCas
 
         return file.ToArray();
     }
-
 }

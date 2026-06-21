@@ -1,6 +1,7 @@
-﻿using CashFlow.Domain.Enums;
+﻿using CashFlow.Domain.Extensions;
 using CashFlow.Domain.Reports;
 using CashFlow.Domain.Repositories.Expenses;
+using CashFlow.Domain.Services.LoggedUser;
 using ClosedXML.Excel;
 
 namespace CashFlow.Application.UseCases.Expenses.Reports.Excel;
@@ -8,16 +9,19 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
 {
     private const string CURRENCY_SYMBOL = "€";
     private readonly IExpensesReadOnlyRepository _repository;
+    private readonly ILoggedUser _loggedUser;
 
-    public GenerateExpensesReportExcelUseCase(IExpensesReadOnlyRepository repository)
+    public GenerateExpensesReportExcelUseCase(IExpensesReadOnlyRepository repository, ILoggedUser loggedUser)
     {
         _repository = repository;
+        _loggedUser = loggedUser;
     }
 
     public async Task<byte[]> Execute(DateOnly month)
     {
-        var expenses = await _repository.FilterByMonth(month);
+        var loggedUser = await _loggedUser.Get();
 
+        var expenses = await _repository.FilterByMonth(loggedUser, month);
         if (expenses.Count == 0)
         {
             return [];
@@ -25,8 +29,7 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
 
         using var workbook = new XLWorkbook();
 
-        //workbook.Author = loggedUser.Name;
-        workbook.Author = "Leandro";
+        workbook.Author = loggedUser.Name;
         workbook.Style.Font.FontSize = 12;
         workbook.Style.Font.FontName = "Times New Roman";
 
@@ -39,8 +42,7 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         {
             worksheet.Cell($"A{raw}").Value = expense.Title;
             worksheet.Cell($"B{raw}").Value = expense.Date;
-            //worksheet.Cell($"C{raw}").Value = expense.PaymentType.PaymentTypeToString();
-            worksheet.Cell($"C{raw}").Value = ConvertPaymentType(expense.PaymentType);
+            worksheet.Cell($"C{raw}").Value = expense.PaymentType.PaymentTypeToString();
 
             worksheet.Cell($"D{raw}").Value = expense.Amount;
             worksheet.Cell($"D{raw}").Style.NumberFormat.Format = $"-{CURRENCY_SYMBOL} #,##0.00";
@@ -56,18 +58,6 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         workbook.SaveAs(file);
 
         return file.ToArray();
-    }
-
-    private string ConvertPaymentType(PaymentType paymentType)
-    {
-        return paymentType switch
-        {
-            PaymentType.Cash => "Cash",
-            PaymentType.CreditCard => "Credit Card",
-            PaymentType.DebitCard => "Debit Card",
-            PaymentType.EletronicTransfer => "Bank Transfer",
-            _ => string.Empty
-        };
     }
 
     private void InsertHeader(IXLWorksheet worksheet)
